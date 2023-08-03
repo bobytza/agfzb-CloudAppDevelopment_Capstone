@@ -80,26 +80,38 @@ def registration_request(request):
 
 # Update the `get_dealerships` view to render the index page with a list of dealerships
 def get_dealerships(request):
+    context = {}
     if request.method == "GET":
         url = "https://us-south.functions.appdomain.cloud/api/v1/web/be932420-f3e7-4769-a777-9aed02e58cd2/dealership-package/get-dealership"
         # Get dealers from the URL
         dealerships = get_dealers_from_cf(url)
+
+        context["dealerships"] = dealerships
+        print(context)
+
+        return render(request, 'djangoapp/index.html', context)
         # Concat all dealer's short name
-        dealer_names = ' --- '.join([dealer.short_name for dealer in dealerships])
+        # dealer_names = ' --- '.join([dealer.short_name for dealer in dealerships])
         # Return a list of dealer short name
-        return HttpResponse(dealer_names)
+        # return HttpResponse(dealer_names)
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
 # def get_dealer_details(request, dealer_id):
 def get_dealer_details(request, dealer_id):
+    context = {}
     if request.method == "GET":
         url = "https://us-south.functions.appdomain.cloud/api/v1/web/be932420-f3e7-4769-a777-9aed02e58cd2/dealership-package/get-review"
         # Get dealers from the URL
         reviews = get_dealer_reviews_from_cf(url, dealerId=dealer_id)
+
+        context["reviews"] = reviews
+        context["dealer_id"] = dealer_id
+
+        return render(request, 'djangoapp/dealer_details.html', context)
         # Concat all dealer's short name
-        reviews_names = ' --- '.join([review.name + "(" + review.sentiment + ")" for review in reviews])
+        #reviews_names = ' --- '.join([review.name + "(" + review.sentiment + ")" for review in reviews])
         # Return a list of dealer short name
-        return HttpResponse(reviews_names)
+        #return HttpResponse(reviews_names)
 
 # Create a `add_review` view to submit a review
 # def add_review(request, dealer_id):
