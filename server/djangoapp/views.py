@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
+from .models import CarModel
 from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -118,25 +119,37 @@ def get_dealer_details(request, dealer_id):
 # def add_review(request, dealer_id):
 def add_review(request, dealer_id):
     if request.user.is_authenticated:
-        print("Logged in")
-        review=dict()
+        if request.method == "GET":
+            context = {}
+            context["dealer_id"] = dealer_id
+            context["cars"] = CarModel.objects.all()
+            url = "https://us-south.functions.appdomain.cloud/api/v1/web/be932420-f3e7-4769-a777-9aed02e58cd2/dealership-package/get-dealership?dealerId=" + str(dealer_id)
+            dealer = get_dealers_from_cf(url)
+            print(dealer)
+            context["dealer"] = dealer[0]
+        
 
-        review["dealership"] = dealer_id
-        review["name"] = "test"
-        review["purchase"] = True
-        review["review"] = "Best car in the world"
-        review["purchase_date"] = datetime.utcnow().isoformat()
-        review["car_make"] = "test"
-        review["car_model"] = "test"
-        review["car_year"] = "test"
-        review["sentiment"] = "unknown"
-        review["id"] = 10
+            return render(request, 'djangoapp/add_review.html', context)
+        if request.method == "POST":
+            print("Logged in")
+            review=dict()
 
-        print(review)
-        post_request("https://us-south.functions.appdomain.cloud/api/v1/web/be932420-f3e7-4769-a777-9aed02e58cd2/dealership-package/post-review", {"review": review}, dealerId=dealer_id)
+            review["dealership"] = dealer_id
+            review["name"] = "test"
+            review["purchase"] = True
+            review["review"] = "Best car in the world"
+            review["purchase_date"] = datetime.utcnow().isoformat()
+            review["car_make"] = "test"
+            review["car_model"] = "test"
+            review["car_year"] = "test"
+            review["sentiment"] = "unknown"
+            review["id"] = 10
 
-        # Return a list of dealer short name
-        return JsonResponse(review)
+            print(review)
+            post_request("https://us-south.functions.appdomain.cloud/api/v1/web/be932420-f3e7-4769-a777-9aed02e58cd2/dealership-package/post-review", {"review": review}, dealerId=dealer_id)
+
+            # Return a list of dealer short name
+            return JsonResponse(review)
     else:
         print("Not logged in")
 
