@@ -46,9 +46,17 @@ def main(param_dict):
     dealerId = param_dict.get('dealerId')
     
     if dealerId is not None:
-        result_object = next((obj for obj in records if obj.get("id") == int(dealerId)), None)
-        print(result_object)
-        return {"body": [result_object]}
+        filtered_list = []
+        for dictionary in records:
+            print(dictionary)
+            if dictionary.get("id") == int(dealerId):
+                filtered_list.append(dictionary)
+        #print(filtered_list)
+        return {"body": filtered_list}
+        
+        # result_object = next((obj for obj in records if obj.get("id") == int(dealerId)), None)
+        # print(result_object)
+        # return {"body": [result_object]}
     else:
         # You can now process the records or return them as needed
         return {"body": records}
