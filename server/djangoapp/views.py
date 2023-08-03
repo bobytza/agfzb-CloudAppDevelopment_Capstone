@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
-from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf
+from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -103,5 +103,28 @@ def get_dealer_details(request, dealer_id):
 
 # Create a `add_review` view to submit a review
 # def add_review(request, dealer_id):
-# ...
+def add_review(request, dealer_id):
+    if request.user.is_authenticated:
+        print("Logged in")
+        review=dict()
+
+        review["dealership"] = dealer_id
+        review["name"] = "test"
+        review["purchase"] = True
+        review["review"] = "Best car in the world"
+        review["purchase_date"] = datetime.utcnow().isoformat()
+        review["car_make"] = "test"
+        review["car_model"] = "test"
+        review["car_year"] = "test"
+        review["sentiment"] = "unknown"
+        review["id"] = 10
+
+        print(review)
+        post_request("https://us-south.functions.appdomain.cloud/api/v1/web/be932420-f3e7-4769-a777-9aed02e58cd2/dealership-package/post-review", {"review": review}, dealerId=dealer_id)
+
+        # Return a list of dealer short name
+        return JsonResponse(review)
+    else:
+        print("Not logged in")
+
 
