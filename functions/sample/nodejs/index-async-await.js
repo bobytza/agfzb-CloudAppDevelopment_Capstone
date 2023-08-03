@@ -18,4 +18,3 @@ async function main(params) {
           return { error: error.description };
       }
 }
-
